@@ -35,8 +35,22 @@ The figure below illustrates the Actor-critic Architecture (source [Continous Co
 
 
 ## Network Architectures.
-Throughout my experimentation phase I did not change the basic network architecture much in terms of number of layers and number of units: it was always 2 fully connected hidden layers with ReLu activations for both the actor and the critic. I tried 64/64, 128/64 and 128/128 units for the two hidden layers and used 128/128 in my final setup. The main improvement to get the agent to train came from a suggestion in the Nanodegree Slack channel: When introducing batch normalization after the first hidden layer for the actor network the training started to get somewhere. Before (with the standard feedforward network and some optimizations outlined below), the training would stall at average score of 1 − 2. I later decided to add one batch normalization layer also in the critic network. Looking at the training progress (see chart below), the smoothing/regularizing effect of batch normalization was pronounced in the sense that training progress started visibly after only a handful of episodes.
+Throughout my experimentation phase I did not change the basic network architecture much in terms of number of layers and number of units: it was always 2 fully connected hidden layers with ReLu activations for both the actor and the critic. I tried 64/64, 128/64 and 128/128 units for the two hidden layers and used 64/64 in my final setup. The main improvement to get the agent to train came from a suggestion in the Nanodegree Slack channel: When introducing batch normalization after the first hidden layer for the actor network the training started to get somewhere. Before (with the standard feedforward network and some optimizations outlined below), the training would stall at average score of 1 − 2. I later decided to add one batch normalization layer also in the critic network. Looking at the training progress (see chart below), the smoothing/regularizing effect of batch normalization was pronounced in the sense that training progress started visibly after only a handful of episodes.
 
+## Training
+Training (after much experimentation) used the following hyperparameters:
+
+```Replay buffer size 100000
+Minibatch size 64
+Discount factor (gamma) 0.99
+Soft update interpoloation (TAU) 1e-3
+Learning rate of the actor 1e-4
+Learning rate of the critic 1e-4
+L2 weight decay 0
+Number of episodes played 500
+Max time (number of steps) per episode 1000
+```
+The following plot shows the score achieved during training; demonstrating the agent was able to meet the 30 point score goal shortly after approximately 200 episodes.
 
 ## Future Work
 The amount of experimentation that could be performed was somewhat limited by the amount of time is required to perform training; so an obvious first point is further experimentation on the network architecture to find a more optimum actor and critic architecture. Some other thoughts include:
