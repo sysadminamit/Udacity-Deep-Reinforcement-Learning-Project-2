@@ -31,3 +31,9 @@ An actor is used to tune the parameters 𝜽 for the policy function i.e. decide
 
 The figure below illustrates the Actor-critic Architecture (source [Continous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf)).
 
+![ ](Images/actor_critic_architecture_image.png)
+
+
+## Network Architectures.
+Throughout my experimentation phase I did not change the basic network architecture much in terms of number of layers and number of units: it was always 2 fully connected hidden layers with ReLu activations for both the actor and the critic. I tried 64/64, 128/64 and 128/128 units for the two hidden layers and used 128/128 in my final setup. The main improvement to get the agent to train came from a suggestion in the Nanodegree Slack channel: When introducing batch normalization after the first hidden layer for the actor network the training started to get somewhere. Before (with the standard feedforward network and some optimizations outlined below), the training would stall at average score of 1 − 2. I later decided to add one batch normalization layer also in the critic network. Looking at the training progress (see chart below), the smoothing/regularizing effect of batch normalization was pronounced in the sense that training progress started visibly after only a handful of episodes.
+
