@@ -25,32 +25,49 @@ Reinforcement learning algorithms can be categoized as either value-based, polic
 
 In the previous [project-1](https://github.com/sysadminamit/Udacity-Deep-Reinforcement-learning-Project-1) we used a value-based algorithm, Deep Q-Network (DQN), to successfuly train an agent to navigate an environment scattered with good and bad bananas. DQN has seen much success dealing with environments with high-dimensional (complex) states but only dealing with discrete actions. Unfortunately value-based algorithms don't scale well when the action space is large, such as when they require a continous output (as its very difficult to converge for large action spaces) such as what is required in this project.
 
-Deep Deterministic Policy Gradient (DDPG) (the algorithm used in this project) builds on DPG (mentioned above) but introduces an actor-critic architecture to deal with a large action space (continous or discrete).
+Deep Deterministic Policy Gradient (DDPG) (the algorithm used in this project) builds on DPG but introduces an actor-critic architecture to deal with a large action space (continous or discrete).
 
-An actor is used to tune the parameters 𝜽 for the policy function i.e. decide the best action for a specific state while a critic is used to evaluate the policy function estimated by the actor according to the temporal difference (TD) error (TD learning is a way to learn how to predict a value depending on future values for a given state, similar to Q-Learning).
+ - DDPG is a policy gradient algorithm that uses a stochastic behavior policy for good exploration but estimates a deterministic target policy, which is much easier to learn. Policy gradient algorithms utilize a form of policy iteration: they evaluate the policy, and then follow the policy gradient to maximize performance. Since DDPG is off-policy and uses a deterministic target policy, this allows for the use of the Deterministic Policy Gradient theorem (which will be derived shortly). DDPG is an actor-critic algorithm as well; it primarily uses two neural networks, one for the actor and one for the critic. These networks compute action predictions for the current state and generate a temporal-difference (TD) error signal each time step. The input of the actor network is the current state, and the output is a single real value representing an action chosen from a continuous action space (whoa!). The critic’s output is simply the estimated Q-value of the current state and of the action given by the actor. The deterministic policy gradient theorem provides the update rule for the weights of the actor network. The critic network is updated from the gradients obtained from the TD error signal.
+ 
+The Actor-Critic learning algorithm is used to represent the policy function independently of the value function. The policy function structure is known as the actor, and the value function structure is referred to as the critic. The actor produces an action given the current state of the environment, and the critic produces a TD (Temporal-Difference) error signal given the state and resultant reward. If the critic is estimating the action-value function Q(s,a), it will also need the output of the actor. The output of the critic drives learning in both the actor and the critic. In Deep Reinforcement Learning, neural networks can be used to represent the actor and critic structures.
 
 The figure below illustrates the Actor-critic Architecture (source [Continous Control with Deep Reinforcement Learning](https://arxiv.org/pdf/1509.02971.pdf)).
 
 ![ ](Images/actor_critic_architecture_image.png)
 
 
+
 ## Network Architectures.
-Throughout my experimentation phase I did not change the basic network architecture much in terms of number of layers and number of units: it was always 2 fully connected hidden layers with ReLu activations for both the actor and the critic. I tried 64/64, 128/64 and 128/128 units for the two hidden layers and used 64/64 in my final setup. The main improvement to get the agent to train came from a suggestion in the Nanodegree Slack channel: When introducing batch normalization after the first hidden layer for the actor network the training started to get somewhere. Before (with the standard feedforward network and some optimizations outlined below), the training would stall at average score of 1 − 2. I later decided to add one batch normalization layer also in the critic network. Looking at the training progress (see chart below), the smoothing/regularizing effect of batch normalization was pronounced in the sense that training progress started visibly after only a handful of episodes.
+Throughout my experimentation phase I did not change the basic network architecture much in terms of number of layers and number of units: it was always 2 fully connected hidden layers with ReLu activations for both the actor and the critic. I am using 128/128 units for the two hidden layers in this project. The main improvement to get the agent to train came from a suggestion in the Nanodegree Slack channel: When introducing batch normalization after the first hidden layer for the actor network the training started to get somewhere. Before (with the standard feedforward network and some optimizations outlined below), the training would stall at average score of 1 − 2. I later decided to add one batch normalization layer also in the critic network. Looking at the training progress (see chart below), the smoothing/regularizing effect of batch normalization was pronounced in the sense that training progress started visibly after only a handful of episodes.
 
 ## Training
+
 Training (after much experimentation) used the following hyperparameters:
 
-```Replay buffer size 100000
-Minibatch size 64
-Discount factor (gamma) 0.99
-Soft update interpoloation (TAU) 1e-3
-Learning rate of the actor 1e-4
-Learning rate of the critic 1e-4
-L2 weight decay 0
-Number of episodes played 500
-Max time (number of steps) per episode 1000
 ```
-The following plot shows the score achieved during training; demonstrating the agent was able to meet the 30 point score goal shortly after approximately 200 episodes.
+BUFFER_SIZE = int(1e5)  # replay buffer size
+BATCH_SIZE = 128        # minibatch size
+GAMMA = 0.99            # discount factor
+TAU = 1e-3              # for soft update of target parameters
+LR_ACTOR = 2e-4         # learning rate of the actor 
+LR_CRITIC = 2e-4        # learning rate of the critic
+WEIGHT_DECAY = 0        # L2 weight decay
+
+```
+
+
+## Training Plot
+The agent was able to solve the environment by achieving score of 30.0 over 100 consecutive episodes after 231 episodes.
+![ ](Images/plot.jpg)
+
+## Training Output
+
+```
+Episode 100	Average Score: 2.74
+Episode 200	Average Score: 23.88
+Episode 231	Average Score: 30.19
+Environment solved in 231 episodes!	Average Score: 30.19
+```
 
 ## Future Work
 The amount of experimentation that could be performed was somewhat limited by the amount of time is required to perform training; so an obvious first point is further experimentation on the network architecture to find a more optimum actor and critic architecture. Some other thoughts include:
